@@ -61,4 +61,19 @@
         (form/submit-button "Save")
         ))))
 
+(defn loginPage []
+  (base-page
+    (form/form-to
+      [:post "/login"]
+
+      (form/label "username" "Username")
+      (form/text-field "username")
+
+      (form/label "password" "Password")
+      (form/password-field "password")
+
+      (anti-forgery-field)
+
+      (form/submit-button "Login")
+      )))
 
