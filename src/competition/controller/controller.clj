@@ -5,13 +5,17 @@
     [competition.domain.teams :as teams]
     [hiccup.page :refer [html5]]
     [hiccup.form :as form]
-    [ring.util.anti-forgery :refer [anti-forgery-field]]))
+    [ring.util.anti-forgery :refer [anti-forgery-field]]
+    [competition.domain.players :as players]
+    [competition.domain.positions :as positions]))
 
 
 (defn base-page [& body]
   (html5
     [:head [:title "Teams"]]
     [:a {:href "/teams/new"} "New team!"]
+    [:br]
+    [:a {:href "/players/new"} "New player!"]
     [:hr]
     [:body
      [:a {:href "/"} [:h1 "Teams home page"]]
@@ -20,7 +24,10 @@
 (defn index []
   (base-page (let [teamsColl (teams/getAll)]
                (for [t teamsColl]
-                 [:h2 [:a {:href (str "/team/" (:teamid t))} (:fullname t)]]))))
+                 [:h2 [:a {:href (str "/team/" (:teamid t))} (:fullname t)]]))
+             (let [playersColl (players/getAll)]
+               (for [p playersColl]
+                 [:h1 [:a {:href (str "/player/" (:playerID p))} (:playerID p)]]))))
 
 (defn teamPage [id]
   (let [t (teams/getByID id)]
@@ -29,9 +36,11 @@
       [:br]
       [:a {:href (str "/team/" id "/delete")} "Delete team"]
       [:hr]
-      [:small (:founded t)]
-      [:h1 (:fullname t)]
-      [:p (:nickname t)])))
+      [:h1 (str (:fullname t) ,)]
+      [:p (str "also known as the " (:nickname t)
+               ", is a professional football club founded in "
+                (:founded t) ". The club is playing at the " (:ground t)
+                 " whose capacity is " (:capacity t) ".")])))
 
 (defn editTeamPage [id]
   (let [t (teams/getByID id)]
@@ -77,3 +86,50 @@
       (form/submit-button "Login")
       )))
 
+
+(defn playerPage [id]
+  (let [p (players/getByID id)]
+    (base-page
+      [:a {:href (str "/player/" id "/edit")} "Edit player"]
+      [:br]
+      [:a {:href (str "/player/" id "/delete")} "Delete player"]
+      [:hr]
+      [:h1 (str (:name p) ,)]
+      [:p (str  "is a professional football player born in "
+               (:dateofbirth p) " in " (:placeofbirth p) ". He is a successful, " (:heightincm p)
+               "cm tall " (:name (positions/getByID (:playerposition p))) " who has number " (:playernumber p)
+                " on " (:nickname (teams/getByID (:team p))) " jersey.")])))
+
+(defn editPlayerPage [id]
+  (let [p (players/getByID id)]
+    (base-page
+      (form/form-to
+        [:post (if p
+                 (str "/players/" (:playerid p))
+                 "/players")]
+
+        (form/label "name" "Name")
+        (form/text-area "name" (:name p))
+
+        (form/label "dateofbirth" "Date of birth")
+        (form/text-field "dateofbirth" (:dateofbirth p))
+
+        (form/label "placeofbirth" "Place of birth")
+        (form/text-field "placeofbirth" (:placeofbirth p))
+
+        (form/label "heightincm" "Height in cm")
+        (form/text-field "heightincm" (:heightincm p))
+
+        (form/label "playerposition" "Player position")
+        (form/text-field "playerposition" (:playerposition p))
+
+        (form/label "team" "Team")
+        (form/text-field "team" (:team p))
+
+        (form/label "playernumber" "Player number")
+        (form/text-field "playernumber" (:playernumber p))
+
+        (anti-forgery-field)
+
+        (form/submit-button "Save")
+        ))))
