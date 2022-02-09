@@ -8,7 +8,8 @@
   (jdbc/query db/dbConn ["SELECT * FROM players"]))
 
 (defn getPlayersFromTeam[teamID]
-  (jdbc/query db/dbConn [(str "SELECT * FROM players WHERE team=" + teamID)]))
+  (jdbc/query db/dbConn
+              (sql/select * :players (sql/where {:team teamID}))))
 
 (defn getByID [id]
   (first (jdbc/query db/dbConn

@@ -10,3 +10,7 @@
 (defn getByID [id]
   (first (jdbc/query db/dbConn
                      (sql/select * :positions (sql/where {:positionID id})))))
+
+(defn getByName [name]
+  (first (jdbc/query db/dbConn
+                     (sql/select * :positions (sql/where {:name name})))))

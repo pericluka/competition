@@ -12,7 +12,8 @@
             [competition.controller.controller :as controller]
             [ring.middleware.session :as session]
             [competition.domain.users :as users]
-            [competition.domain.players :as players]))
+            [competition.domain.players :as players]
+            [competition.domain.positions :as positions]))
 
 (defroutes app-routes
            (GET "/" [] (controller/index))
@@ -58,8 +59,8 @@
                                                              :dateofbirth (:dateofbirth params)
                                                              :placeofbirth (:placeofbirth params)
                                                              :heightincm (Integer/parseInt (:heightincm params))
-                                                             :playerposition (Integer/parseInt (:playerposition params))
-                                                             :team (Integer/parseInt (:team params))
+                                                             :playerposition (:positionid (positions/getByName (:playerposition params)))
+                                                             :team (:teamid (teams/getByName (:team params)))
                                                              :playernumber (Integer/parseInt (:playernumber params))}]
                                                 (do (players/update id player)
                                                   (resp/redirect "/"))))
@@ -67,8 +68,8 @@
                                                              :dateofbirth (:dateofbirth params)
                                                              :placeofbirth (:placeofbirth params)
                                                              :heightincm (Integer/parseInt (:heightincm params))
-                                                             :playerposition (Integer/parseInt (:playerposition params))
-                                                             :team (Integer/parseInt (:team params))
+                                                             :playerposition (:positionid (positions/getByName (:playerposition params)))
+                                                             :team (:teamid (teams/getByName (:team params)))
                                                              :playernumber (Integer/parseInt (:playernumber params))}]
                                                 (do (players/create player)
                                                     (resp/redirect "/")))))

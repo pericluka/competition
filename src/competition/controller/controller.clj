@@ -18,16 +18,16 @@
     [:a {:href "/players/new"} "New player!"]
     [:hr]
     [:body
-     [:a {:href "/"} [:h1 "Teams home page"]]
+     [:a {:href "/"} [:h1 "Home page"]]
      body]))
 
 (defn index []
-  (base-page (let [teamsColl (teams/getAll)]
+  (base-page
+    [:hr]
+    [:h1 "Teams:"]
+    (let [teamsColl (teams/getAll)]
                (for [t teamsColl]
-                 [:h2 [:a {:href (str "/team/" (:teamid t))} (:fullname t)]]))
-             (let [playersColl (players/getAll)]
-               (for [p playersColl]
-                 [:h1 [:a {:href (str "/player/" (:playerID p))} (:playerID p)]]))))
+                 [:h2 [:a {:href (str "/team/" (:teamid t))} (:fullname t)]]))))
 
 (defn teamPage [id]
   (let [t (teams/getByID id)]
@@ -40,7 +40,11 @@
       [:p (str "also known as the " (:nickname t)
                ", is a professional football club founded in "
                 (:founded t) ". The club is playing at the " (:ground t)
-                 " whose capacity is " (:capacity t) ".")])))
+                 " whose capacity is " (:capacity t) ".")]
+      [:h2 "Players in the team:"]
+      (let [playersColl (players/getPlayersFromTeam id)]
+        (for [p playersColl]
+          [:h3 [:a {:href (str "/player/" (:playerid p))} (str (:playernumber p) " " (:name p))]])))))
 
 (defn editTeamPage [id]
   (let [t (teams/getByID id)]
@@ -96,9 +100,12 @@
       [:hr]
       [:h1 (str (:name p) ,)]
       [:p (str  "is a professional football player born in "
-               (:dateofbirth p) " in " (:placeofbirth p) ". He is a successful, " (:heightincm p)
+                (subs (str (:dateofbirth p)) 0 4) " in " (:placeofbirth p) ". He is a successful, " (:heightincm p)
                "cm tall " (:name (positions/getByID (:playerposition p))) " who has number " (:playernumber p)
                 " on " (:nickname (teams/getByID (:team p))) " jersey.")])))
+
+(defn select1 [map ks]
+  (reduce #(conj %1 (map %2)) [] ks))
 
 (defn editPlayerPage [id]
   (let [p (players/getByID id)]
@@ -121,10 +128,14 @@
         (form/text-field "heightincm" (:heightincm p))
 
         (form/label "playerposition" "Player position")
-        (form/text-field "playerposition" (:playerposition p))
+        (form/drop-down "playerposition" (let [allPositions (positions/getAll)]
+                                           (for [position allPositions]
+                                             [(:name position)])))
 
         (form/label "team" "Team")
-        (form/text-field "team" (:team p))
+        (form/drop-down "team" (let [allTeams (teams/getAll)]
+                                  (for [team allTeams]
+                                    [(:fullname team)])))
 
         (form/label "playernumber" "Player number")
         (form/text-field "playernumber" (:playernumber p))
@@ -133,3 +144,4 @@
 
         (form/submit-button "Save")
         ))))
+

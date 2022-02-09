@@ -11,6 +11,10 @@
   (first (jdbc/query db/dbConn
                      (sql/select * :teams (sql/where {:teamID id})))))
 
+(defn getByName [name]
+  (first (jdbc/query db/dbConn
+                     (sql/select * :teams (sql/where {:fullName name})))))
+
 (defn create [params]
   (jdbc/insert! db/dbConn :teams params))
 
