@@ -7,19 +7,31 @@
     [hiccup.form :as form]
     [ring.util.anti-forgery :refer [anti-forgery-field]]
     [competition.domain.players :as players]
-    [competition.domain.positions :as positions]))
+    [competition.domain.positions :as positions]
+    [markdown.core :as md]))
 
 
 (defn base-page [& body]
   (html5
-    [:head [:title "Teams"]]
-    [:a {:href "/teams/new"} "New team!"]
-    [:br]
-    [:a {:href "/players/new"} "New player!"]
-    [:hr]
+    [:head [:title "Teams"]
+     [:link {:rel "stylesheet"
+             :href "https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+             :integrity "sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
+             :crossorigin "anonymous"}]]
     [:body
-     [:a {:href "/"} [:h1 "Home page"]]
-     body]))
+     [:div.container
+      [:nav.navbar.navbar-expand-lg.navbar-light.bd-light
+       [:a.navbar-brand {:href "/"} "Home page"]
+       [:div.navbar-nav.ml-auto
+        [:a.nav-item.nav-link {:href "/teams/new"} "New team"]
+        [:a.nav-item.nav-link {:href "/players/new"} "New player"]
+        [:a.nav-item.nav-link {:href "/login"} "Login"]
+        [:a.nav-item.nav-link {:href "/logout"} "Logout"]
+        ]]
+      body]
+      ]
+     ))
+
 
 (defn index []
   (base-page
@@ -32,9 +44,11 @@
 (defn teamPage [id]
   (let [t (teams/getByID id)]
     (base-page
-      [:a {:href (str "/team/" id "/edit")} "Edit team"]
-      [:br]
-      [:a {:href (str "/team/" id "/delete")} "Delete team"]
+      (form/form-to
+       [:delete (str "/team/" id "/delete")]
+       (anti-forgery-field)
+       [:a.btn.btn-primary {:href (str "/team/" id "/edit")} "Edit team"]
+       (form/submit-button {:class "btn btn-danger"} "Delete team"))
       [:hr]
       [:h1 (str (:fullname t) ,)]
       [:p (str "also known as the " (:nickname t)
@@ -54,40 +68,46 @@
                  (str "/teams/" (:teamid t))
                  "/teams")]
 
-        (form/label "fullname" "Fullname")
-        (form/text-area "fullname" (:fullname t))
+        [:div.form-group
+         (form/label "fullname" "Fullname")
+         (form/text-field {:class "form-control"} "fullname" (:fullname t))
 
-        (form/label "nickname" "Nickname")
-        (form/text-field "nickname" (:nickname t))
+         (form/label "nickname" "Nickname")
+         (form/text-field {:class "form-control"} "nickname" (:nickname t))
 
-        (form/label "founded" "Founded")
-        (form/text-field "founded" (:founded t))
+         (form/label "founded" "Founded")
+         (form/text-field {:class "form-control"} "founded" (:founded t))
 
-        (form/label "ground" "Ground")
-        (form/text-field "ground" (:ground t))
+         (form/label "ground" "Ground")
+         (form/text-field {:class "form-control"} "ground" (:ground t))
 
-        (form/label "capacity" "Capacity")
-        (form/text-field "capacity" (:capacity t))
+         (form/label "capacity" "Capacity")
+         (form/text-field {:class "form-control"} "capacity" (:capacity t))]
+
 
         (anti-forgery-field)
 
-        (form/submit-button "Save")
+        (form/submit-button {:class "btn btn-primary"} "Save")
         ))))
 
-(defn loginPage []
+(defn loginPage [& [msg]]
   (base-page
+    (when msg
+      [:div.alert.alert-danger msg])
     (form/form-to
       [:post "/login"]
 
-      (form/label "username" "Username")
-      (form/text-field "username")
+      [:div.form-group
+       (form/label "username" "Username")
+       (form/text-field {:class "form-control"} "username")]
 
-      (form/label "password" "Password")
-      (form/password-field "password")
+      [:div.form-group
+       (form/label "password" "Password")
+       (form/password-field {:class "form-control"} "password")]
 
       (anti-forgery-field)
 
-      (form/submit-button "Login")
+      (form/submit-button {:class "btn btn-primary"} "Login")
       )))
 
 

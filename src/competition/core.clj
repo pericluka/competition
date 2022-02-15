@@ -26,7 +26,7 @@
              (if (users/loginUser username password)
                (-> (resp/redirect "/")
                    (assoc-in [:session :admin] true))
-               (controller/loginPage)))
+               (controller/loginPage "Invalid username or password")))
            (GET "/logout" []
              (-> (resp/redirect "/")
                  (assoc-in [:session :admin] false)))
@@ -49,7 +49,7 @@
                                                   :capacity (Integer/parseInt (:capacity params))}]
                                        (do (teams/create team)
                                            (resp/redirect "/"))))
-           (GET "/team/:id/delete" [id] (do (teams/delete id)
+           (DELETE "/team/:id/delete" [id] (do (teams/delete id)
                                             (resp/redirect "/")))
            (GET "/players/new" [] (controller/editPlayerPage nil))
            (GET "/player/:id/edit" [id] (controller/editPlayerPage id))
