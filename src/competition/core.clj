@@ -53,7 +53,7 @@
                                             (resp/redirect "/")))
            (GET "/players/new" [] (controller/editPlayerPage nil))
            (GET "/player/:id/edit" [id] (controller/editPlayerPage id))
-           (GET "/player/:id/delete" [id] (do (players/delete id)
+           (DELETE "/player/:id/delete" [id] (do (players/delete id)
                                             (resp/redirect "/")))
            (POST "/players/:id" [id & params] (let  [player {:name (:name params)
                                                              :dateofbirth (:dateofbirth params)
